@@ -40,6 +40,7 @@ jobs:
         with:
           context: .
           push: true
+          tags: danzpollub/chmura:latest
           platforms: |
             linux/arm64/v8
             linux/amd64          
