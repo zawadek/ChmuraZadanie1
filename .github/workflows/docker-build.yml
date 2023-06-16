@@ -1,0 +1,45 @@
+name: Docker CI/CD for studies by Daniel Z
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_BUILDKIT: 1
+      DOCKER_CLI_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKER_CLI_PASSWORD: ${{ secrets.DOCKERHUB_PERSONAL_TOKEN }}
+          
+    steps:
+      - name: Docker Buildx set up
+        uses: docker/setup-buildx-action@v1
+
+      - name: Docker Buildx configure 
+        run: |
+          docker buildx create --use
+          docker buildx inspect --bootstrap
+  
+      - name: QEMU set up 
+        uses: docker/setup-qemu-action@v1
+
+      - name: get source code
+        uses: actions/checkout@v2
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: $DOCKER_CLI_USERNAME
+          password: $DOCKER_CLI_PASSWORD
+
+      - name: Build and push arm64v8 and amd64 image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          platforms: |
+            linux/arm64/v8
+            linux/amd64          
